@@ -66,7 +66,7 @@ FROM haven_analytics.main_policy mp
 ;
 	   
 
-/*DROP TABLE IF EXISTS haven_analytics_def.cp_special_path_retention_temp
+/*DROP TABLE IF EXISTS haven_analytics_dev.cp_special_path_retention_temp
 ;
 CREATE TABLE haven_analytics_dev.cp_special_path_retention_temp AS*/
 SELECT DISTINCT 
