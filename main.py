@@ -2,12 +2,13 @@ import os
 from mmpac import *
 
 # Load env variables 
+verticaHost = os.getenv('havenAnalyticsUwVerticaHost', 'aws_prod')
 verticaUser = os.getenv('verticaUser')
 verticaPass = os.getenv('verticaPass')
 
 # Setup vertica connection
-print('Connecting to Vertica')
-vertica_setup(server='aws_prod',                                     
+print('Connecting to Vertica host {}'.format(verticaHost))
+vertica_setup(server=verticaHost,
               user=verticaUser,
               password=verticaPass,
               connection_timeout=3600)
