@@ -1,6 +1,6 @@
-DROP TABLE IF EXISTS aps_count
+DROP TABLE IF EXISTS aps_count2
 ;
-CREATE TEMPORARY TABLE aps_count ON COMMIT PRESERVE ROWS AS 
+CREATE TEMPORARY TABLE aps_count2 ON COMMIT PRESERVE ROWS AS 
 SELECT p.policyNumber
 FROM haven_uw.policy p
 	JOIN haven_uw.aps_order aps ON aps.policyId = p."_id"
@@ -9,9 +9,9 @@ GROUP BY 1
 HAVING COUNT(DISTINCT aps.orderId) = 1
 ;
 
-DROP TABLE IF EXISTS aps_r
+DROP TABLE IF EXISTS aps_r2
 ;
-CREATE TEMPORARY TABLE aps_r ON COMMIT PRESERVE ROWS AS 
+CREATE TEMPORARY TABLE aps_r2 ON COMMIT PRESERVE ROWS AS 
 SELECT DISTINCT p.policyNumber
 , r."_id" 
 , r.createdTime as requirement_start
@@ -26,9 +26,9 @@ WHERE REGEXP_SUBSTR((MAPLOOKUP(MapJSONExtractor(r.requirementDef), 'name')), '(\
 ORDER BY p.policyNumber, r.createdTime
 ;
 
-DROP TABLE IF EXISTS aps_orderer
+DROP TABLE IF EXISTS aps_orderer2
 ;
-CREATE TEMPORARY TABLE aps_orderer ON COMMIT PRESERVE ROWS AS 
+CREATE TEMPORARY TABLE aps_orderer2 ON COMMIT PRESERVE ROWS AS 
 SELECT DISTINCT mp.policyNumber
 , cah.userId 
 , cah.createdTime as cah_start
@@ -38,9 +38,9 @@ WHERE cah.action = 'APS Ordered'
 	AND cah.userId <> 'System'
 ;
 
-DROP TABLE IF EXISTS aps_base
+DROP TABLE IF EXISTS aps_base2
 ;
-CREATE TEMPORARY TABLE aps_base ON COMMIT PRESERVE ROWS AS 
+CREATE TEMPORARY TABLE aps_base2 ON COMMIT PRESERVE ROWS AS 
 SELECT DISTINCT 
 mp.policyNumber
 , cah.associatedId
@@ -59,9 +59,9 @@ WHERE cah.action = 'APS Ordered'
 	AND mp.channel = 'CAS'
 ;
 
-DROP TABLE IF EXISTS pd
+DROP TABLE IF EXISTS pd2
 ;
-CREATE TEMPORARY TABLE pd ON COMMIT PRESERVE ROWS AS 
+CREATE TEMPORARY TABLE pd2 ON COMMIT PRESERVE ROWS AS 
 SELECT DISTINCT p.policyNumber, pd.createdTime as docrecdate
 FROM haven_uw.policy p
 	LEFT JOIN haven_uw.policy_doc pd ON pd.policyId = p."_id"
@@ -74,9 +74,9 @@ GROUP BY 1
 HAVING COUNT(DISTINCT pd."_id") = 1)
 ;
 
-DROP TABLE IF EXISTS requirement_aps
+DROP TABLE IF EXISTS requirement_aps2
 ;
-CREATE TEMPORARY TABLE requirement_aps ON COMMIT PRESERVE ROWS AS 
+CREATE TEMPORARY TABLE requirement_aps2 ON COMMIT PRESERVE ROWS AS 
 SELECT x.*
 FROM (
 SELECT DISTINCT policyNumber
@@ -87,7 +87,7 @@ SELECT DISTINCT policyNumber
 , 'Ordered' as status
 , userId as statusbyId
 , physicianName as doctorName
-FROM aps_base
+FROM aps_base2
 UNION
 SELECT DISTINCT policyNumber
 , 'APS' as name
@@ -97,7 +97,7 @@ SELECT DISTINCT policyNumber
 , 'Cancelled' as status
 , userId as statusbyId
 , physicianName as doctorName
-FROM aps_base
+FROM aps_base2
 WHERE status = 'canceled'
 UNION
 SELECT DISTINCT aps_base.policyNumber
@@ -108,7 +108,7 @@ SELECT DISTINCT aps_base.policyNumber
 , 'Received' as status
 , 'System' as statusbyId
 , physicianName as doctorName
-FROM aps_base
+FROM aps_base2
 	LEFT JOIN aps_count ON aps_base.policyNumber = aps_count.policyNumber
 	LEFT JOIN pd ON aps_base.policyNumber = pd.policyNumber AND aps_count.policyNumber = aps_base.policyNumber 
 WHERE status = 'complete'
@@ -117,9 +117,9 @@ WHERE status = 'complete'
 --WHERE x.policyNumber = '402020506'
 ;
 
-DROP TABLE IF EXISTS followup_base
+DROP TABLE IF EXISTS followup_base2
 ;
-CREATE TEMPORARY TABLE followup_base ON COMMIT PRESERVE ROWS AS 
+CREATE TEMPORARY TABLE followup_base2 ON COMMIT PRESERVE ROWS AS 
 SELECT DISTINCT mp.policyNumber
 , fu._id
 , fu.status
@@ -143,9 +143,9 @@ FROM haven_analytics.main_policy mp
 WHERE mp.channel = 'CAS'
 ;
 
-DROP TABLE IF EXISTS requirement_followup
+DROP TABLE IF EXISTS requirement_followup2
 ;
-CREATE TEMPORARY TABLE requirement_followup ON COMMIT PRESERVE ROWS AS
+CREATE TEMPORARY TABLE requirement_followup2 ON COMMIT PRESERVE ROWS AS
 SELECT DISTINCT followup_base.policyNumber
 , followupType as name
 , _id AS UniqueID
@@ -154,7 +154,7 @@ SELECT DISTINCT followup_base.policyNumber
 , 'Opened' as status
 , massMutualId as statusbyId
 , NULL as doctorName
-FROM followup_base
+FROM followup_base2
 WHERE followUpType IN ('UW Follow-up','Issue Follow-up','SHQ')
 UNION
 SELECT DISTINCT followup_base.policyNumber
@@ -165,15 +165,15 @@ SELECT DISTINCT followup_base.policyNumber
 , status
 , massMutualId as statusbyId
 , NULL as doctorName
-FROM followup_base
+FROM followup_base2
 WHERE followUpType IN ('UW Follow-up','Issue Follow-up','SHQ')
 	AND closedDate IS NOT NULL
 	AND status IN ('Cancelled','Closed')
 ;
 
-DROP TABLE IF EXISTS endpoint
+DROP TABLE IF EXISTS endpoint2
 ;
-CREATE TEMPORARY TABLE endpoint ON COMMIT PRESERVE ROWS AS
+CREATE TEMPORARY TABLE endpoint2 ON COMMIT PRESERVE ROWS AS
 --endPoint
 SELECT DISTINCT 
 pol.policyNumber
