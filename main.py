@@ -16,6 +16,7 @@ vertica_setup(server='aws_prod',
 # We could loop through all .sql files in the root folder, but this way we can manage the order of runs
 extract_list = [
  'cp_special_path_retention_temp.sql'
+  , 'req_test.sql'
 ]
 
 # Query and store all extracts from extract_dict
